@@ -1,0 +1,23 @@
+---
+title: "Ad Click-through Rate Prediction Project - PCA"
+output: html_notebook
+---
+
+```{r}
+library(reticulate)
+use_condaenv("project", required = TRUE)
+library(tidyverse)
+```
+
+```{python}
+import pandas as pd
+import numpy as np
+```
+
+
+```{r}
+train = read_csv("../Data/train_5M_regr.csv")
+test = read_csv("../Data/test_1M_regr.csv")
+```
+
+

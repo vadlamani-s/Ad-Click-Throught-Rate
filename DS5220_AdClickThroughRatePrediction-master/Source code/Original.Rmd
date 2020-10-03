@@ -1,0 +1,14 @@
+---
+title: "Ad Click-through Rate Prediction Project - PCA"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+main.colnames = c('Click','Impression','AdURL','AdId','AdvId','Depth','Pos','QId','KeyId','TitleId','DescId','UId')
+main = read_delim("../Data/training.txt", n_max = 1000000, delim = "\t", col_names = main.colnames, col_types = cols(Click = col_integer(), Impression = col_integer(), Depth = col_integer(), Pos = col_integer(), AdURL = col_character(), AdId = col_character(), AdvId = col_character(), QId = col_character(), KeyId = col_character(), TitleId = col_character(), DescId = col_character(), UId = col_character()))
+```
+

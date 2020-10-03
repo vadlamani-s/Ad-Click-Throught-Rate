@@ -1,0 +1,129 @@
+---
+title: "Ad Click-through Rate Prediction Project"
+output: html_notebook
+---
+
+```{r}
+library(reticulate)
+use_condaenv("project", required = TRUE)
+library(tidyverse)
+```
+
+```{python}
+import pandas as pd
+import numpy as np
+```
+
+
+```{r}
+main = read_csv("../Data/training_subsampled.csv", n_max = 1000000)
+main %>% head
+```
+
+```{r}
+query.colnames  = c('QId', 'Query')
+queries = read_delim("../Data/queryid_tokensid.txt", delim = "\t", col_names = query.colnames, col_types = cols(Query = col_character()))
+queries %>% head
+```
+
+```{r}
+user.colnames  = c('UId', 'Gender', 'Age')
+users = read_delim("../Data/userid_profile.txt", delim = "\t", col_names = user.colnames)
+users %>% head
+```
+
+```{r}
+adtitle.colnames  = c('TitleId', 'Title')
+ad.titles = read_delim("../Data/titleid_tokensid.txt", delim = "\t", col_names = adtitle.colnames, col_types = cols(Title = col_character()))
+ad.titles %>% head
+```
+
+```{r}
+addesc.colnames  = c('DescId', 'Description')
+ad.desc = read_delim("../Data/descriptionid_tokensid.txt", delim = "\t", col_names = addesc.colnames, col_types = cols(Description = col_character()))
+ad.desc %>% head
+```
+
+```{r}
+keywd.colnames  = c('KeywordId', 'Keyword')
+keywords = read_delim("../Data/purchasedkeywordid_tokensid.txt", delim = "\t", col_names = keywd.colnames, col_types = cols(Keyword = col_character()))
+keywords %>% head
+```
+
+```{python}
+main  = r.main.reset_index()
+temp = main.head(20000)
+temp
+```
+
+
+---
+### Expand data
+
+```{python}
+main_expanded = temp
+for index, row in main_expanded.iterrows():
+    if row['Impression'] > 1:
+        main_expanded = main_expanded.append([row]*(int(row['Impression']-1)),ignore_index=True)
+    if index%10000 == 0:
+        print("Rows completed : ", index)
+```
+```{python}
+main_expanded
+```
+
+```{python}
+print(type(main_expanded['AdURL'][0]))
+```
+
+```{python}
+main_expanded.to_csv('../Data/train_1M.csv',index=False)
+```
+
+```{python}
+main_expanded = pd.read_csv("../Data/train_1M.csv",dtype={'index':np.int64,'AdURL':np.uint64,'AdId':np.int64,'AdvId':np.int64,'Depth':np.int64,'Pos':np.int64,'QId':np.int64,'KeyId':np.int64,'TitleId':np.int64,'DescId':np.int64,'UId':np.int64})
+```
+
+```{python}
+main_expanded['class_label'] = 0
+main_expanded_n = main_expanded   # storing dataframe in a temporary variable which is used in the below snippet
+main_expanded.head()
+```
+
+```{python}
+indices = list()
+
+for i, row in main_expanded.iterrows():
+    if i<1000000:   # no.of original rows(before replication)
+        main_expanded_n = main_expanded
+        if row['Click'] == 0 and row['Impression'] == 1:
+            main_expanded['class_label'] = 0
+        elif row['Click'] == 1 and row['Impression'] == 1:
+            main_expanded['class_label'] = 1
+        else:
+            main_expanded_n = main_expanded_n.loc[main_expanded_n['index']==row['index']]
+            if row['Click']>=1:
+                clicks_num = row['Click']
+                main_expanded_n = main_expanded_n.sample(int(clicks_num))
+                ind = main_expanded_n.index  # Example: data_n.index -> Int64Index([100000, 30], dtype='int64')
+                indices.extend(ind)
+        if i%10000 == 0:
+            print("Rows completed : ", i)
+
+```
+
+```{python}
+indices = list(dict.fromkeys(indices))
+indices
+```
+
+```{python}
+main_expanded.info()
+```
+
+```{r}
+main_expanded <- py$main_expanded
+str(main_expanded)
+```
+
+

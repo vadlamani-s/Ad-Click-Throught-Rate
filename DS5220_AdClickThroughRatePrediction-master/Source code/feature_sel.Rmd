@@ -1,0 +1,131 @@
+---
+title: "Ad Click-through Rate Prediction Project - Feature Sel"
+output: html_notebook
+---
+
+```{r}
+library(reticulate)
+use_condaenv("project", required = TRUE)
+library(tidyverse)
+```
+
+```{python}
+import pandas as pd
+import numpy as np
+```
+
+
+```{r}
+data=na.omit(train)
+```
+
+
+```{r}
+library(leaps)
+regfit.full=regsubsets(Salary~.,Hitters)
+summary(regfit.full)
+```
+
+```{python}
+y_train = r.train['class_label'].values
+y_test = r.test['class_label'].values
+```
+
+```{r}
+y_train <- py$y_train
+y_test <- py$y_test
+```
+
+
+```{python}
+x_train = r.train.drop('class_label', axis=1)
+x_train = x_train.drop('index', axis=1)
+
+x_test = r.test.drop('class_label', axis=1)
+x_test = x_test.drop('index', axis=1)
+train_noindex = r.train.drop('index', axis=1)
+print(x_train.shape)
+print(x_test.shape)
+```
+
+
+```{r}
+x_train <- py$x_train
+x_test <- py$x_test
+train_noindex <- py$train_noindex
+```
+
+
+```{r}
+library(leaps)
+regfit.full=regsubsets(class_label~.,train_noindex)
+summary(regfit.full)
+```
+
+
+```{r}
+regfit.full=regsubsets(class_label~.,data=train_noindex,nvmax=19)
+reg.summary=summary(regfit.full)
+```
+```{r}
+summary(regfit.full)
+
+```
+
+
+```{r}
+names(reg.summary)
+
+```
+
+
+```{r}
+reg.summary$rsq
+
+```
+
+```{r}
+par(mfrow=c(2,2))
+plot(reg.summary$rss,xlab="Number of Variables",ylab="RSS",type="l")
+plot(reg.summary$adjr2,xlab="Number of Variables",ylab="Adjusted RSq",type="l")
+which.max(reg.summary$adjr2)
+points(11,reg.summary$adjr2[11], col="red",cex=2,pch=20)
+plot(reg.summary$cp,xlab="Number of Variables",ylab="Cp",type='l')
+which.min(reg.summary$cp)
+points(10,reg.summary$cp[10],col="red",cex=2,pch=20)
+which.min(reg.summary$bic)
+plot(reg.summary$bic,xlab="Number of Variables",ylab="BIC",type='l')
+points(6,reg.summary$bic[6],col="red",cex=2,pch=20)
+```
+
+```{r}
+plot(regfit.full,scale="r2")
+plot(regfit.full,scale="adjr2")
+plot(regfit.full,scale="Cp")
+plot(regfit.full,scale="bic")
+```
+
+```{r}
+coef(regfit.full,6)
+```
+
+
+```{r}
+regfit.fwd=regsubsets(class_label~.,data=train_noindex,nvmax=19,method="forward")
+summary(regfit.fwd)
+
+```
+
+
+```{r}
+regfit.bwd=regsubsets(class_label~.,data=train_noindex,nvmax=19,method="backward")
+summary(regfit.bwd)
+```
+
+
+```{r}
+coef(regfit.full,15)
+coef(regfit.fwd,15)
+coef(regfit.bwd,15)
+```
+

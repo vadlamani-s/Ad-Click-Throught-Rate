@@ -1,0 +1,103 @@
+---
+title: "Ad Click-through Rate Prediction Project - Logistic regression"
+output: html_notebook
+---
+
+```{r}
+library(reticulate)
+use_condaenv("project", required = TRUE)
+library(tidyverse)
+```
+
+```{python}
+import pandas as pd
+import numpy as np
+```
+
+```{r}
+train = read_csv("../Data/train_1M_basic_feat.csv")
+test = read_csv("../Data/test_1M_basic_feat.csv")
+train %>% head
+```
+
+```{r}
+train = read_csv("../Data/train_1M_num_feats_mod.csv")
+test = read_csv("../Data/test_1M_num_feats_mod.csv")
+train %>% head
+```
+
+```{r}
+names(train)
+dim(train)
+summary(train)
+```
+
+```{r}
+glm.fits=glm(class_label ~ ., data=train,family=binomial)
+summary(glm.fits)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
